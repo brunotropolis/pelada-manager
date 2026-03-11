@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pelada Manager — Times</title>
+  <title>Futebol de Terça — Times</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #00e5a0;
       --text: #e6edf3; --muted: #8b949e; --error: #f85149; --success: #3fb950;
       --input-bg: #0d1117; --radius: 10px; --orange: #f59e0b;
-      --team-a: #3b82f6; --team-b: #ef4444;
+      --team-a: #e6edf3; --team-b: #ef4444;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -44,7 +44,7 @@
     /* Teams grid */
     .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .team-card { border-radius: 8px; padding: 16px; border: 1px solid; }
-    .team-a { border-color: var(--team-a); background: rgba(59,130,246,.06); }
+    .team-a { border-color: var(--team-a); background: rgba(230,237,243,.06); }
     .team-b { border-color: var(--team-b); background: rgba(239,68,68,.06); }
     .team-title {
       font-size: 0.9375rem; font-weight: 700; text-align: center;
@@ -124,7 +124,7 @@
   <div class="wrap">
     <header>
       <div class="logo">&#9917;</div>
-      <h1>Pelada <span>Manager</span></h1>
+      <h1>Futebol de <span>Terça</span></h1>
       <p>Times da partida</p>
     </header>
 
@@ -135,7 +135,7 @@
       </div>
     </div>
 
-    <footer>Pelada Manager &mdash; times da partida</footer>
+    <footer>Futebol de Terça &mdash; times da partida</footer>
   </div>
 
 <script>
@@ -211,8 +211,8 @@ async function loadTimes() {
     };
 
     html += '<div class="teams-grid">';
-    html += renderTeam(data.time_a, '\uD83D\uDD35 TIME A', 'team-a');
-    html += renderTeam(data.time_b, '\uD83D\uDD34 TIME B', 'team-b');
+    html += renderTeam(data.time_a, '\u26AB TIME PRETO', 'team-a');
+    html += renderTeam(data.time_b, '\uD83D\uDD34 TIME VERMELHO', 'team-b');
     html += '</div>';
 
     // Copy button
@@ -252,9 +252,9 @@ function copiarTimes() {
     return str;
   };
 
-  const text = `\u26BD *PELADA - ${data.data || 'Hoje'}*\n\n` +
-    formatTeam(data.time_a, '\uD83D\uDD35 TIME A') + '\n' +
-    formatTeam(data.time_b, '\uD83D\uDD34 TIME B');
+  const text = `\u26BD *FUTEBOL DE TERÇA - ${data.data || 'Hoje'}*\n\n` +
+    formatTeam(data.time_a, '\u26AB TIME PRETO') + '\n' +
+    formatTeam(data.time_b, '\uD83D\uDD34 TIME VERMELHO');
 
   navigator.clipboard.writeText(text).then(() => {
     showToast('\uD83D\uDCCB', 'Copiado!', 'Cole no grupo do WhatsApp.');

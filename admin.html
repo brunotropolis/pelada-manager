@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pelada Manager — Admin</title>
+  <title>Futebol de Terça — Admin</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,7 +20,7 @@
       --success:   #3fb950;
       --input-bg:  #0d1117;
       --radius:    10px;
-      --team-a:    #3b82f6;
+      --team-a:    #e6edf3;
       --team-b:    #ef4444;
     }
 
@@ -85,7 +85,7 @@
     .btn-orange { background: var(--orange); }
     .btn-red { background: var(--error); color: #fff; }
     .btn-red:hover:not(:disabled) { opacity: .85; }
-    .btn-blue { background: var(--team-a); color: #fff; }
+    .btn-blue { background: var(--team-a); color: #0d1117; }
     .btn-small { padding: 8px 16px; font-size: 0.8125rem; width: auto; }
     .btn-row { display: flex; gap: 8px; margin-top: 10px; }
     .btn-row .btn { flex: 1; }
@@ -111,7 +111,7 @@
     }
     .badge-aberta { background: rgba(0,229,160,.15); color: var(--accent); }
     .badge-confirmando { background: rgba(245,158,11,.15); color: var(--orange); }
-    .badge-times_definidos { background: rgba(59,130,246,.15); color: var(--team-a); }
+    .badge-times_definidos { background: rgba(230,237,243,.15); color: var(--team-a); }
     .badge-avaliando { background: rgba(124,58,237,.15); color: var(--accent2); }
     .badge-encerrada { background: rgba(139,148,158,.15); color: var(--muted); }
     .badge-mensalista { background: rgba(0,229,160,.12); color: var(--accent); }
@@ -193,7 +193,7 @@
       padding: 14px;
       border: 2px solid;
     }
-    .team-a { border-color: var(--team-a); background: rgba(59,130,246,.06); }
+    .team-a { border-color: var(--team-a); background: rgba(230,237,243,.06); }
     .team-b { border-color: var(--team-b); background: rgba(239,68,68,.06); }
     .team-title {
       font-size: 0.9375rem;
@@ -313,7 +313,7 @@
 <div class="wrap">
   <header>
     <div class="logo">&#9917;&#9881;&#65039;</div>
-    <h1>Pelada <span>Manager</span></h1>
+    <h1>Futebol de <span>Terça</span></h1>
     <p>Painel Admin</p>
   </header>
 
@@ -366,12 +366,12 @@
     <div class="section-title"><span class="s-icon">&#127942;</span> Registrar Placar</div>
     <div class="score-grid">
       <div>
-        <div class="score-label score-label-a">TIME A</div>
+        <div class="score-label score-label-a">TIME PRETO</div>
         <input type="number" class="score-input" id="placar-a" min="0" max="99" value="0">
       </div>
       <div class="score-x">X</div>
       <div>
-        <div class="score-label score-label-b">TIME B</div>
+        <div class="score-label score-label-b">TIME VERMELHO</div>
         <input type="number" class="score-input" id="placar-b" min="0" max="99" value="0">
       </div>
     </div>
@@ -395,7 +395,7 @@
     </div>
   </section>
 
-  <footer>Pelada Manager &mdash; painel admin</footer>
+  <footer>Futebol de Terça &mdash; painel admin</footer>
 </div>
 
 <!-- Toast -->
@@ -903,8 +903,8 @@ function renderTeams() {
   };
 
   document.getElementById('teams-grid').innerHTML =
-    renderCard(teamA, '\u{1F535} TIME A', 'team-a') +
-    renderCard(teamB, '\u{1F534} TIME B', 'team-b');
+    renderCard(teamA, '\u26AB TIME PRETO', 'team-a') +
+    renderCard(teamB, '\u{1F534} TIME VERMELHO', 'team-b');
 }
 
 // ═══════════════════════════════════════════════
@@ -944,10 +944,10 @@ function copiarWhatsApp() {
   };
 
   const text =
-    `\u26BD *PELADA - ${matchDate}*\n\n` +
-    formatTeamBlock(teamA, '\u{1F535}', 'TIME A') +
+    `\u26BD *FUTEBOL DE TERÇA - ${matchDate}*\n\n` +
+    formatTeamBlock(teamA, '\u26AB', 'TIME PRETO') +
     '\n' +
-    formatTeamBlock(teamB, '\u{1F534}', 'TIME B') +
+    formatTeamBlock(teamB, '\u{1F534}', 'TIME VERMELHO') +
     `\n\u2696\uFE0F Equil\u00edbrio: ${avgA.toFixed(1)} x ${avgB.toFixed(1)}`;
 
   navigator.clipboard.writeText(text).then(() => {
@@ -998,7 +998,7 @@ async function salvarPlacar() {
       placar_a: placarA,
       placar_b: placarB,
     });
-    showToast('Placar Salvo!', `TIME A ${placarA} x ${placarB} TIME B`);
+    showToast('Placar Salvo!', `TIME PRETO ${placarA} x ${placarB} TIME VERMELHO`);
     await loadCurrentMatch();
   } catch (err) {
     showToast('Erro', err.message, '\u274C', true);
