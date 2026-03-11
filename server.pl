@@ -16,7 +16,7 @@ $| = 1;
 while (my $c = $d->accept) {
   while (my $r = $c->get_request) {
     my $path = $r->uri->path;
-    $path = '/presenca.html' if $path eq '/';
+    $path = '/index.html' if $path eq '/';
     $path =~ s|[^a-zA-Z0-9._/-]||g;
     my $file = "$root$path";
     if (-f $file) {
