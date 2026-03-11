@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pelada Manager — Times</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --card: #161b22; --border: #30363d; --accent: #00e5a0;
+      --text: #e6edf3; --muted: #8b949e; --error: #f85149; --success: #3fb950;
+      --input-bg: #0d1117; --radius: 10px; --orange: #f59e0b;
+      --team-a: #3b82f6; --team-b: #ef4444;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: flex-start; justify-content: center;
+      padding: 24px 16px;
+    }
+    .wrap { width: 100%; max-width: 520px; }
+    header { text-align: center; margin-bottom: 28px; }
+    .logo { font-size: 2.5rem; line-height: 1; margin-bottom: 10px; filter: drop-shadow(0 0 12px var(--accent)); }
+    header h1 { font-size: 1.5rem; font-weight: 700; }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+
+    /* Match info */
+    .match-info {
+      text-align: center; padding: 16px;
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 8px; margin-bottom: 20px;
+    }
+    .match-date { font-size: 1.1rem; font-weight: 700; }
+    .match-status {
+      display: inline-block; font-size: 0.7rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px; margin-top: 6px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .status-times_definidos { background: rgba(0,229,160,.12); color: var(--accent); }
+    .status-avaliando { background: rgba(245,158,11,.12); color: var(--orange); }
+
+    /* Teams grid */
+    .teams-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .team-card { border-radius: 8px; padding: 16px; border: 1px solid; }
+    .team-a { border-color: var(--team-a); background: rgba(59,130,246,.06); }
+    .team-b { border-color: var(--team-b); background: rgba(239,68,68,.06); }
+    .team-title {
+      font-size: 0.9375rem; font-weight: 700; text-align: center;
+      margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .team-a .team-title { color: var(--team-a); }
+    .team-b .team-title { color: var(--team-b); }
+    .team-player { font-size: 0.8125rem; padding: 5px 0; display: flex; justify-content: space-between; align-items: center; }
+    .team-player-name { color: var(--text); font-weight: 500; }
+    .team-player-pos { color: var(--muted); font-size: 0.7rem; }
+    .team-avg {
+      text-align: center; font-size: 0.75rem; color: var(--muted);
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .team-avg strong { color: var(--orange); }
+
+    /* Score display */
+    .score-display {
+      text-align: center; padding: 16px;
+      background: var(--input-bg); border: 1px solid var(--border);
+      border-radius: 8px; margin-bottom: 20px;
+    }
+    .score-display .score-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+    .score-numbers { font-size: 2rem; font-weight: 700; }
+    .score-a { color: var(--team-a); }
+    .score-b { color: var(--team-b); }
+    .score-x { color: var(--muted); margin: 0 12px; }
+
+    /* Buttons */
+    .btn {
+      width: 100%; padding: 12px 24px; background: var(--accent); color: #0d1117;
+      font-size: 0.9375rem; font-weight: 700; border: none; border-radius: 8px;
+      cursor: pointer; transition: opacity .15s; display: flex; align-items: center;
+      justify-content: center; gap: 8px; font-family: inherit;
+    }
+    .btn:hover { opacity: .88; }
+    .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+    .btn-row { display: flex; gap: 8px; }
+
+    .empty-state { text-align: center; padding: 40px 16px; color: var(--muted); }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-120px);
+      z-index: 999; background: var(--card); border: 1px solid rgba(63,185,80,.45);
+      border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 13px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7); opacity: 0; pointer-events: none;
+      max-width: 380px; width: calc(100% - 32px);
+      transition: transform .38s cubic-bezier(.175,.885,.32,1.275), opacity .3s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    .toast-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .toast-body { flex: 1; }
+    .toast-title { font-size: 0.9375rem; font-weight: 700; }
+    .toast-msg { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .toast-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px; }
+
+    footer { text-align: center; margin-top: 20px; color: #3d444d; font-size: 0.75rem; }
+
+    @media (max-width: 480px) {
+      .teams-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-icon"></span>
+    <div class="toast-body">
+      <div class="toast-title" id="toast-title"></div>
+      <div class="toast-msg" id="toast-msg"></div>
+    </div>
+    <button class="toast-close" onclick="hideToast()">&#10005;</button>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="logo">&#9917;</div>
+      <h1>Pelada <span>Manager</span></h1>
+      <p>Times da partida</p>
+    </header>
+
+    <div class="card" id="content">
+      <div class="empty-state" id="loading">
+        <div class="empty-icon">&#9203;</div>
+        <p>Carregando times...</p>
+      </div>
+    </div>
+
+    <footer>Pelada Manager &mdash; times da partida</footer>
+  </div>
+
+<script>
+const API_BASE = 'https://n8n-n8n.xktssy.easypanel.host/webhook';
+const POS_EMOJI = { Zagueiro: '\u{1F6E1}', Meia: '\uD83C\uDFAF', Ponta: '\u26A1', Atacante: '\u26BD' };
+const POSICOES = ['Zagueiro', 'Meia', 'Ponta', 'Atacante'];
+
+let toastTimer;
+function showToast(icon, title, msg) {
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast').classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 4000);
+}
+function hideToast() { document.getElementById('toast').classList.remove('show'); }
+
+async function loadTimes() {
+  const content = document.getElementById('content');
+  try {
+    const res = await fetch(`${API_BASE}/pelada-times`);
+    const data = await res.json();
+
+    if (!data || !data.time_a || !data.time_a.length) {
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">&#9878;</div>
+          <p>Times ainda não foram sorteados.<br>Aguarde o admin sortear os times.</p>
+        </div>`;
+      return;
+    }
+
+    const matchDate = data.data || '';
+    const status = data.status || 'times_definidos';
+    const placarA = data.placar_a;
+    const placarB = data.placar_b;
+
+    let html = '';
+
+    // Match info
+    html += `<div class="match-info">
+      <div class="match-date">&#9917; ${matchDate} - 21h</div>
+      <div class="match-status status-${status}">${status.replace('_', ' ')}</div>
+    </div>`;
+
+    // Score (if available)
+    if (placarA !== undefined && placarA !== '' && placarB !== undefined && placarB !== '') {
+      html += `<div class="score-display">
+        <div class="score-label">PLACAR</div>
+        <div class="score-numbers">
+          <span class="score-a">${placarA}</span>
+          <span class="score-x">X</span>
+          <span class="score-b">${placarB}</span>
+        </div>
+      </div>`;
+    }
+
+    // Teams
+    const renderTeam = (players, label, cls) => {
+      let s = `<div class="team-card ${cls}"><div class="team-title">${label}</div>`;
+      players.forEach(p => {
+        s += `<div class="team-player">
+          <span class="team-player-name">${p.nome || p}</span>
+          <span class="team-player-pos">${p.posicao_preferida || ''}</span>
+        </div>`;
+      });
+      const avg = players[0] && players[0].rating
+        ? (players.reduce((s, p) => s + (parseFloat(p.rating) || 5), 0) / players.length).toFixed(1)
+        : '-';
+      s += `<div class="team-avg">M&eacute;dia: <strong>${avg}</strong></div></div>`;
+      return s;
+    };
+
+    html += '<div class="teams-grid">';
+    html += renderTeam(data.time_a, '\uD83D\uDD35 TIME A', 'team-a');
+    html += renderTeam(data.time_b, '\uD83D\uDD34 TIME B', 'team-b');
+    html += '</div>';
+
+    // Copy button
+    html += `<div class="btn-row">
+      <button class="btn btn-secondary" style="flex:1" onclick="copiarTimes()">&#128203; Copiar WhatsApp</button>
+    </div>`;
+
+    content.innerHTML = html;
+
+    // Store for copy
+    window._teamsData = data;
+
+  } catch (err) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">&#9888;</div>
+        <p>Erro ao carregar times.<br>Verifique sua conex&atilde;o.</p>
+      </div>`;
+  }
+}
+
+function copiarTimes() {
+  const data = window._teamsData;
+  if (!data) return;
+
+  const formatTeam = (players, label) => {
+    const grouped = {};
+    players.forEach(p => {
+      const pos = p.posicao_preferida || 'Outros';
+      if (!grouped[pos]) grouped[pos] = [];
+      grouped[pos].push(p.nome || p);
+    });
+    let str = `*${label}*\n`;
+    POSICOES.forEach(pos => {
+      if (grouped[pos]) str += `${POS_EMOJI[pos]} ${pos}: ${grouped[pos].join(', ')}\n`;
+    });
+    return str;
+  };
+
+  const text = `\u26BD *PELADA - ${data.data || 'Hoje'}*\n\n` +
+    formatTeam(data.time_a, '\uD83D\uDD35 TIME A') + '\n' +
+    formatTeam(data.time_b, '\uD83D\uDD34 TIME B');
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('\uD83D\uDCCB', 'Copiado!', 'Cole no grupo do WhatsApp.');
+  }).catch(() => {
+    showToast('\u274C', 'Erro', 'Não foi possível copiar.');
+  });
+}
+
+loadTimes();
+</script>
+</body>
+</html>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pelada Manager — Presenca</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --card:      #161b22;
+      --border:    #30363d;
+      --accent:    #00e5a0;
+      --accent2:   #7c3aed;
+      --orange:    #f59e0b;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --error:     #f85149;
+      --success:   #3fb950;
+      --input-bg:  #0d1117;
+      --radius:    10px;
+      --yellow:    #eab308;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .wrap { width: 100%; max-width: 520px; }
+
+    /* -- Header -- */
+    header { text-align: center; margin-bottom: 28px; }
+    .logo { font-size: 2.5rem; line-height: 1; margin-bottom: 10px; filter: drop-shadow(0 0 12px var(--accent)); }
+    header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--muted); font-size: 0.875rem; margin-top: 4px; }
+
+    /* -- Card -- */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    /* -- Match Banner -- */
+    .match-banner {
+      text-align: center;
+      padding: 18px 16px;
+      background: linear-gradient(135deg, rgba(0,229,160,.06), rgba(124,58,237,.06));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .match-banner .match-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .match-banner .match-date {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .match-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-aberta { background: rgba(63,185,80,.15); color: var(--success); border: 1px solid rgba(63,185,80,.3); }
+    .badge-fechada { background: rgba(248,81,73,.1); color: var(--error); border: 1px solid rgba(248,81,73,.3); }
+    .badge-cancelada { background: rgba(139,148,158,.1); color: var(--muted); border: 1px solid var(--border); }
+    .match-no-match {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .match-no-match .no-match-icon { font-size: 2rem; margin-bottom: 8px; }
+
+    /* -- Section titles -- */
+    .section-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* -- Form fields -- */
+    .field { margin-bottom: 16px; }
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .req { color: var(--accent); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      font-size: 0.9375rem;
+      padding: 10px 14px;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 229, 160, 0.12);
+    }
+    input::placeholder { color: #3d444d; }
+    select { cursor: pointer; }
+    select option { background: var(--card); color: var(--text); }
+
+    /* -- Range slider -- */
+    .range-wrap { display: flex; align-items: center; gap: 12px; }
+    .range-wrap input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+    }
+    .range-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--card);
+    }
+    .range-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 36px;
+      text-align: center;
+    }
+
+    /* -- Positions grid -- */
+    .pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pos-option { position: relative; }
+    .pos-option input[type="checkbox"],
+    .pos-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .pos-label {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 7px;
+      background: var(--input-bg); cursor: pointer;
+      font-size: 0.875rem; color: var(--muted);
+      transition: border-color .15s, color .15s, background .15s;
+      user-select: none;
+    }
+    .pos-label:hover { border-color: var(--accent); color: var(--text); }
+    .pos-option input:checked + .pos-label {
+      border-color: var(--accent); color: var(--accent); background: rgba(0, 229, 160, 0.06);
+    }
+    .pos-icon { font-size: 1rem; }
+
+    /* -- Buttons -- */
+    .btn {
+      width: 100%; padding: 12px 24px;
+      background: var(--accent); color: #0d1117;
+      font-size: 0.9375rem; font-weight: 700;
+      border: none; border-radius: 8px; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit;
+    }
+    .btn:hover:not(:disabled) { opacity: .88; }
+    .btn:active:not(:disabled) { transform: scale(.98); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-secondary:hover:not(:disabled) { background: rgba(0,229,160,.06); opacity: 1; }
+    .btn-orange { background: var(--orange); }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,.3); border-top-color: #0d1117;
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn.loading .spinner { display: block; }
+    .btn.loading .btn-label { opacity: .7; }
+
+    /* -- Status Panel -- */
+    .status-panel { margin-bottom: 16px; }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-header-green { background: rgba(63,185,80,.1); color: var(--success); border: 1px solid rgba(63,185,80,.2); border-bottom: none; }
+    .panel-header-red { background: rgba(248,81,73,.08); color: var(--error); border: 1px solid rgba(248,81,73,.2); border-bottom: none; }
+    .panel-header-yellow { background: rgba(234,179,8,.08); color: var(--yellow); border: 1px solid rgba(234,179,8,.2); border-bottom: none; }
+
+    .panel-body {
+      border: 1px solid var(--border);
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+    }
+    .panel-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+    .panel-item:last-child { border-bottom: none; }
+    .panel-item-green { border-left: 4px solid var(--success); }
+    .panel-item-red { border-left: 4px solid var(--error); }
+    .panel-item-yellow { border-left: 4px solid var(--yellow); }
+
+    .panel-item .item-name { flex: 1; font-weight: 500; }
+    .panel-item .item-name-muted { flex: 1; font-weight: 400; color: var(--muted); }
+    .panel-item .item-pos {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(0,229,160,.12);
+      color: var(--accent);
+    }
+    .panel-item .item-level {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(245,158,11,.12);
+      color: var(--orange);
+    }
+    .panel-item .item-order {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--yellow);
+      min-width: 24px;
+    }
+    .panel-empty {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
+
+    /* -- Collapsible -- */
+    .collapsible-toggle {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      color: var(--accent);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .15s, border-color .15s;
+      font-family: inherit;
+    }
+    .collapsible-toggle:hover { background: rgba(0,229,160,.03); border-color: var(--accent); }
+    .collapsible-toggle .toggle-arrow {
+      margin-left: auto;
+      transition: transform .25s ease;
+      font-size: 0.75rem;
+    }
+    .collapsible-toggle.open .toggle-arrow { transform: rotate(180deg); }
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease;
+    }
+    .collapsible-content.open { max-height: 800px; }
+    .collapsible-inner { padding: 20px 0 0; }
+
+    /* -- Info text -- */
+    .info-box {
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.2);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .info-box p { margin-bottom: 6px; }
+    .info-box p:last-child { margin-bottom: 0; }
+    .info-box strong { color: var(--orange); }
+
+    /* -- Toast -- */
+    .toast {
+      position: fixed; top: 20px; left: 50%;
+      transform: translateX(-50%) translateY(-120px);
+      z-index: 999; background: var(--card);
+      border: 1px solid rgba(63, 185, 80, 0.45);
+      border-radius: 12px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 13px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.7);
+      opacity: 0; pointer-events: none;
+      max-width: 380px; width: calc(100% - 32px);
+      transition: transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    .toast.toast-error { border-color: rgba(248, 81, 73, 0.45); }
+    .toast-icon { font-size: 1.6rem; flex-shrink: 0; line-height: 1; }
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-title { font-size: 0.9375rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .toast-msg { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .toast-close {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1rem; padding: 4px; line-height: 1;
+      border-radius: 4px; flex-shrink: 0; transition: color .15s;
+    }
+    .toast-close:hover { color: var(--text); }
+
+    /* -- Loading skeleton -- */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, rgba(48,54,61,.6) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      height: 18px;
+      margin-bottom: 8px;
+    }
+    .skeleton-lg { height: 44px; }
+    .skeleton-md { height: 28px; width: 60%; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    footer { text-align: center; margin-top: 20px; color: #3d444d; font-size: 0.75rem; }
+
+    /* -- Responsive -- */
+    @media (max-width: 480px) {
+      body { padding: 16px 12px; }
+      .card { padding: 16px; }
+      .pos-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="alert" aria-live="polite">
+    <span class="toast-icon" id="toast-icon"></span>
+    <div class="toast-body">
+      <div class="toast-title" id="toast-title"></div>
+      <div class="toast-msg" id="toast-msg"></div>
+    </div>
+    <button class="toast-close" onclick="hideToast()" title="Fechar">&#10005;</button>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="logo">&#9917;</div>
+      <h1>Pelada <span>Manager</span></h1>
+      <p>Confirma&ccedil;&atilde;o de Presen&ccedil;a</p>
+    </header>
+
+    <!-- 1. Match Info Banner -->
+    <div class="match-banner" id="match-banner">
+      <div class="skeleton skeleton-md" style="margin: 0 auto 8px;"></div>
+      <div class="skeleton skeleton-lg" style="margin: 0 auto; width: 80%;"></div>
+    </div>
+
+    <!-- 2. Confirmar Presenca - Mensalista -->
+    <div class="card" id="card-mensalista">
+      <div class="section-title">&#127919; Confirmar Presen&ccedil;a &mdash; Mensalista</div>
+      <div class="field">
+        <label for="sel-mensalista">Eu sou...<span class="req">*</span></label>
+        <select id="sel-mensalista">
+          <option value="">Carregando jogadores...</option>
+        </select>
+      </div>
+      <button class="btn" id="btn-confirmar" onclick="confirmarMensalista()" disabled>
+        <span class="spinner"></span>
+        <span class="btn-label">&#9989; Confirmar Presen&ccedil;a</span>
+      </button>
+    </div>
+
+    <!-- 3. Painel de Status -->
+    <div class="card" id="card-status">
+      <!-- Confirmados -->
+      <div class="status-panel" id="panel-confirmados">
+        <div class="panel-header panel-header-green">
+          <span>&#9989;</span> Confirmados (<span id="count-confirmados">0</span>/12)
+        </div>
+        <div class="panel-body" id="list-confirmados">
+          <div class="panel-empty">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Faltam Confirmar -->
+      <div class="status-panel" id="panel-faltam">
+        <div class="panel-header panel-header-red">
+          <span>&#10060;</span> Faltam Confirmar
+        </div>
+        <div class="panel-body" id="list-faltam">
+          <div class="panel-empty">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Lista de Espera -->
+      <div class="status-panel" id="panel-espera">
+        <div class="panel-header panel-header-yellow">
+          <span>&#9203;</span> Lista de Espera
+        </div>
+        <div class="panel-body" id="list-espera">
+          <div class="panel-empty">Nenhum avulso na fila</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Cadastrar Avulso (collapsible) -->
+    <div class="card">
+      <button class="collapsible-toggle" id="toggle-avulso" onclick="toggleAvulso()">
+        <span>&#10133; Cadastrar Jogador Avulso</span>
+        <span class="toggle-arrow">&#9660;</span>
+      </button>
+      <div class="collapsible-content" id="content-avulso">
+        <div class="collapsible-inner">
+          <div class="field">
+            <label for="avulso-nome">Nome<span class="req">*</span></label>
+            <input type="text" id="avulso-nome" placeholder="Nome do jogador" />
+          </div>
+
+          <div class="field">
+            <label>Posi&ccedil;&otilde;es que joga (selecione 3)<span class="req">*</span></label>
+            <div class="pos-grid">
+              <div class="pos-option">
+                <input type="checkbox" id="av-pos-zag" value="Zagueiro" onchange="limitPos(this)" />
+                <label for="av-pos-zag" class="pos-label"><span class="pos-icon">&#128737;</span> Zagueiro</label>
+              </div>
+              <div class="pos-option">
+                <input type="checkbox" id="av-pos-mei" value="Meia" onchange="limitPos(this)" />
+                <label for="av-pos-mei" class="pos-label"><span class="pos-icon">&#127919;</span> Meia</label>
+              </div>
+              <div class="pos-option">
+                <input type="checkbox" id="av-pos-pon" value="Ponta" onchange="limitPos(this)" />
+                <label for="av-pos-pon" class="pos-label"><span class="pos-icon">&#9889;</span> Ponta</label>
+              </div>
+              <div class="pos-option">
+                <input type="checkbox" id="av-pos-ata" value="Atacante" onchange="limitPos(this)" />
+                <label for="av-pos-ata" class="pos-label"><span class="pos-icon">&#9918;</span> Atacante</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="avulso-pref">Posi&ccedil;&atilde;o Preferida<span class="req">*</span></label>
+            <select id="avulso-pref">
+              <option value="">Selecione...</option>
+              <option value="Zagueiro">Zagueiro</option>
+              <option value="Meia">Meia</option>
+              <option value="Ponta">Ponta</option>
+              <option value="Atacante">Atacante</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>N&iacute;vel (0&ndash;10)</label>
+            <div class="range-wrap">
+              <input type="range" id="avulso-nivel" min="0" max="10" value="5" oninput="document.getElementById('avulso-nivel-val').textContent=this.value" />
+              <span class="range-value" id="avulso-nivel-val">5</span>
+            </div>
+          </div>
+
+          <button class="btn btn-orange" id="btn-avulso" onclick="confirmarAvulso()">
+            <span class="spinner"></span>
+            <span class="btn-label">Confirmar Presen&ccedil;a (Avulso)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Info text -->
+    <div class="info-box">
+      <p><strong>&#9888;&#65039; Mensalistas t&ecirc;m prioridade.</strong> Avulsos entram na lista de espera.</p>
+      <p><strong>&#9200; Deadline: ter&ccedil;a-feira, 9h.</strong> Vagas n&atilde;o confirmadas ser&atilde;o liberadas.</p>
+    </div>
+
+    <footer>Pelada Manager &mdash; confirma&ccedil;&atilde;o de presen&ccedil;a</footer>
+  </div>
+
+<script>
+  const API = 'https://n8n-n8n.xktssy.easypanel.host/webhook';
+
+  let partidaAtual = null;
+  let jogadores = [];
+  let presencas = [];
+  let toastTimer = null;
+
+  // ── Toast ──
+  function showToast(icon, title, msg, isError) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-msg').textContent = msg || '';
+    t.classList.toggle('toast-error', !!isError);
+    t.style.borderColor = isError ? 'rgba(248,81,73,.45)' : 'rgba(63,185,80,.45)';
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 4500);
+  }
+  function hideToast() {
+    document.getElementById('toast').classList.remove('show');
+    clearTimeout(toastTimer);
+  }
+
+  // ── Collapsible ──
+  function toggleAvulso() {
+    const btn = document.getElementById('toggle-avulso');
+    const content = document.getElementById('content-avulso');
+    btn.classList.toggle('open');
+    content.classList.toggle('open');
+  }
+
+  // ── Limit position checkboxes to 3 ──
+  function limitPos(el) {
+    const checked = document.querySelectorAll('#content-avulso .pos-option input:checked');
+    if (checked.length > 3) {
+      el.checked = false;
+    }
+  }
+
+  // ── Load match info ──
+  async function loadPartida() {
+    const banner = document.getElementById('match-banner');
+    try {
+      const res = await fetch(`${API}/pelada-partida-atual`);
+      const data = await res.json();
+
+      if (!data || !data.id) {
+        banner.innerHTML = '<div class="match-no-match"><div class="no-match-icon">&#128556;</div><p>Nenhuma partida aberta no momento</p></div>';
+        disableAll();
+        return;
+      }
+
+      partidaAtual = data;
+      const statusClass = data.status === 'Aberta' ? 'badge-aberta' : data.status === 'Cancelada' ? 'badge-cancelada' : 'badge-fechada';
+      banner.innerHTML = `
+        <div class="match-label">Pr&oacute;xima Partida</div>
+        <div class="match-date">${data.data_formatada || data.data || 'Data a definir'}</div>
+        <span class="match-badge ${statusClass}">${data.status || 'Aberta'}</span>
+      `;
+
+      if (data.status !== 'Aberta') {
+        disableAll();
+      }
+    } catch (e) {
+      banner.innerHTML = '<div class="match-no-match"><div class="no-match-icon">&#9888;&#65039;</div><p>Erro ao carregar partida</p></div>';
+      disableAll();
+    }
+  }
+
+  function disableAll() {
+    document.getElementById('btn-confirmar').disabled = true;
+    document.getElementById('btn-avulso').disabled = true;
+    document.getElementById('sel-mensalista').disabled = true;
+  }
+
+  // ── Load players ──
+  async function loadJogadores() {
+    try {
+      const res = await fetch(`${API}/pelada-jogadores`);
+      const data = await res.json();
+      jogadores = Array.isArray(data) ? data : [];
+    } catch (e) {
+      jogadores = [];
+    }
+  }
+
+  // ── Load presences ──
+  async function loadPresencas() {
+    try {
+      const res = await fetch(`${API}/pelada-presencas`);
+      const data = await res.json();
+      presencas = Array.isArray(data) ? data : [];
+    } catch (e) {
+      presencas = [];
+    }
+  }
+
+  // ── Render dropdown (only unconfirmed mensalistas) ──
+  function renderDropdown() {
+    const sel = document.getElementById('sel-mensalista');
+    const confirmadosIds = new Set(presencas.filter(p => p.tipo === 'mensalista').map(p => String(p.jogador_id)));
+    const ativos = jogadores.filter(j => j.ativo !== false && j.tipo === 'mensalista' && !confirmadosIds.has(String(j.id)));
+
+    sel.innerHTML = '<option value="">Selecione seu nome...</option>';
+    ativos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+    ativos.forEach(j => {
+      const opt = document.createElement('option');
+      opt.value = j.id;
+      opt.textContent = j.nome;
+      sel.appendChild(opt);
+    });
+
+    sel.disabled = ativos.length === 0;
+    document.getElementById('btn-confirmar').disabled = ativos.length === 0;
+
+    if (ativos.length === 0 && jogadores.length > 0) {
+      sel.innerHTML = '<option value="">Todos j&aacute; confirmaram!</option>';
+    }
+  }
+
+  // ── Render status panels ──
+  function renderPanels() {
+    // Confirmados
+    const confirmados = presencas.filter(p => p.status === 'confirmado' || p.confirmado);
+    document.getElementById('count-confirmados').textContent = confirmados.length;
+
+    const listConf = document.getElementById('list-confirmados');
+    if (confirmados.length === 0) {
+      listConf.innerHTML = '<div class="panel-empty">Nenhuma confirma&ccedil;&atilde;o ainda</div>';
+    } else {
+      listConf.innerHTML = confirmados.map(p => `
+        <div class="panel-item panel-item-green">
+          <span class="item-name">${esc(p.nome || p.jogador_nome || 'Jogador')}</span>
+          ${p.posicao_preferida ? `<span class="item-pos">${esc(p.posicao_preferida)}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Faltam confirmar (mensalistas ativos que nao confirmaram)
+    const confirmadosIds = new Set(presencas.filter(p => p.tipo === 'mensalista').map(p => String(p.jogador_id)));
+    const faltam = jogadores.filter(j => j.ativo !== false && j.tipo === 'mensalista' && !confirmadosIds.has(String(j.id)));
+
+    const listFaltam = document.getElementById('list-faltam');
+    if (faltam.length === 0) {
+      listFaltam.innerHTML = '<div class="panel-empty">Todos confirmaram!</div>';
+    } else {
+      listFaltam.innerHTML = faltam.map(j => `
+        <div class="panel-item panel-item-red">
+          <span class="item-name-muted">${esc(j.nome)}</span>
+        </div>
+      `).join('');
+    }
+
+    // Lista de espera (avulsos)
+    const espera = presencas.filter(p => p.tipo === 'avulso');
+    const listEspera = document.getElementById('list-espera');
+    if (espera.length === 0) {
+      listEspera.innerHTML = '<div class="panel-empty">Nenhum avulso na fila</div>';
+    } else {
+      listEspera.innerHTML = espera.map((p, i) => `
+        <div class="panel-item panel-item-yellow">
+          <span class="item-order">#${i + 1}</span>
+          <span class="item-name">${esc(p.nome || p.jogador_nome || 'Jogador')}</span>
+          ${p.posicao_preferida ? `<span class="item-pos">${esc(p.posicao_preferida)}</span>` : ''}
+          ${p.nivel_convidado != null ? `<span class="item-level">Nv ${p.nivel_convidado}</span>` : ''}
+        </div>
+      `).join('');
+    }
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ── Confirm mensalista ──
+  async function confirmarMensalista() {
+    const sel = document.getElementById('sel-mensalista');
+    const jogadorId = sel.value;
+    if (!jogadorId) { showToast('&#9888;&#65039;', 'Selecione seu nome', '', true); return; }
+    if (!partidaAtual) { showToast('&#9888;&#65039;', 'Nenhuma partida aberta', '', true); return; }
+
+    const btn = document.getElementById('btn-confirmar');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`${API}/pelada-confirmar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          partida_id: partidaAtual.id,
+          jogador_id: jogadorId,
+          tipo: 'mensalista'
+        })
+      });
+
+      if (!res.ok) throw new Error('Erro do servidor');
+      const data = await res.json();
+
+      showToast('&#9989;', 'Presen\u00e7a confirmada!', sel.options[sel.selectedIndex].text);
+      await refreshData();
+    } catch (e) {
+      showToast('&#10060;', 'Erro ao confirmar', e.message || 'Tente novamente', true);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+
+  // ── Confirm avulso ──
+  async function confirmarAvulso() {
+    const nome = document.getElementById('avulso-nome').value.trim();
+    if (!nome) { showToast('&#9888;&#65039;', 'Preencha o nome', '', true); return; }
+    if (!partidaAtual) { showToast('&#9888;&#65039;', 'Nenhuma partida aberta', '', true); return; }
+
+    const checkedPos = Array.from(document.querySelectorAll('#content-avulso .pos-option input:checked')).map(c => c.value);
+    if (checkedPos.length === 0) { showToast('&#9888;&#65039;', 'Selecione ao menos uma posi\u00e7\u00e3o', '', true); return; }
+
+    const pref = document.getElementById('avulso-pref').value;
+    if (!pref) { showToast('&#9888;&#65039;', 'Selecione a posi\u00e7\u00e3o preferida', '', true); return; }
+
+    const nivel = parseInt(document.getElementById('avulso-nivel').value);
+
+    const btn = document.getElementById('btn-avulso');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+      const body = {
+        partida_id: partidaAtual.id,
+        nome: nome,
+        tipo: 'avulso',
+        posicao_1: checkedPos[0] || '',
+        posicao_2: checkedPos[1] || '',
+        posicao_3: checkedPos[2] || '',
+        posicao_preferida: pref,
+        nivel_convidado: nivel
+      };
+
+      const res = await fetch(`${API}/pelada-confirmar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) throw new Error('Erro do servidor');
+
+      showToast('&#9989;', 'Avulso cadastrado!', `${nome} entrou na lista de espera`);
+
+      // Reset form
+      document.getElementById('avulso-nome').value = '';
+      document.querySelectorAll('#content-avulso .pos-option input').forEach(c => c.checked = false);
+      document.getElementById('avulso-pref').value = '';
+      document.getElementById('avulso-nivel').value = 5;
+      document.getElementById('avulso-nivel-val').textContent = '5';
+
+      await refreshData();
+    } catch (e) {
+      showToast('&#10060;', 'Erro ao cadastrar', e.message || 'Tente novamente', true);
+    } finally {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+    }
+  }
+
+  // ── Refresh data ──
+  async function refreshData() {
+    await Promise.all([loadPresencas(), loadJogadores()]);
+    renderDropdown();
+    renderPanels();
+  }
+
+  // ── Init ──
+  async function init() {
+    await loadPartida();
+    if (partidaAtual && partidaAtual.status === 'Aberta') {
+      await Promise.all([loadJogadores(), loadPresencas()]);
+      renderDropdown();
+      renderPanels();
+    } else {
+      // Still load data for display even if match isn't open
+      await Promise.all([loadJogadores(), loadPresencas()]);
+      renderDropdown();
+      renderPanels();
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>
