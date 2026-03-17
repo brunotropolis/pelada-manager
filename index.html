@@ -357,6 +357,14 @@ function hideToast() { document.getElementById('toast').classList.remove('show')
 
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
+function formatDateBR(dateStr) {
+  if (!dateStr) return '';
+  // Handle "YYYY-MM-DD" or ISO string
+  const parts = dateStr.split('T')[0].split('-');
+  if (parts.length !== 3) return dateStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
 // ════════════════════════════════════════════
 //  INIT — Load data and route to correct view
 // ════════════════════════════════════════════
@@ -431,7 +439,7 @@ function renderBanner(partida, status) {
 
   banner.innerHTML = `
     <div class="match-label">&#9917; Partida</div>
-    <div class="match-date">${partida.data_formatada || partida.data || ''} - 21h</div>
+    <div class="match-date">${formatDateBR(partida.data)} - ${partida.horario || '21h'}</div>
     <span class="match-badge ${badgeClass[status] || 'badge-fechada'}">${statusLabels[status] || status}</span>
   `;
 }
@@ -664,7 +672,7 @@ function copiarTimes() {
     POSICOES.forEach(pos => { if (grouped[pos]) str += `${POS_EMOJI[pos]} ${pos}: ${grouped[pos].join(', ')}\n`; });
     return str;
   };
-  const text = `\u26BD *FUTEBOL DE TERÇA - ${data.data || 'Hoje'}*\n\n` + fmt(data.time_a, '\u26AB TIME PRETO') + '\n' + fmt(data.time_b, '\uD83D\uDD34 TIME VERMELHO');
+  const text = `\u26BD *FUTEBOL DE TERÇA - ${formatDateBR(data.data) || 'Hoje'}*\n\n` + fmt(data.time_a, '\u26AB TIME PRETO') + '\n' + fmt(data.time_b, '\uD83D\uDD34 TIME VERMELHO');
   navigator.clipboard.writeText(text).then(() => showToast('\uD83D\uDCCB', 'Copiado!', 'Cole no grupo do WhatsApp.'))
     .catch(() => showToast('\u274C', 'Erro', 'Não foi possível copiar.', true));
 }
@@ -864,7 +872,7 @@ async function loadHistory() {
 
       return `<div class="history-item" id="hist-${i}">
         <div class="history-header" onclick="toggleHistory(${i})">
-          <span class="history-date">&#128197; ${p.data_formatada || p.data || ''}</span>
+          <span class="history-date">&#128197; ${formatDateBR(p.data)}</span>
           <span class="history-score"><span class="sa">${pa}</span><span class="sx">x</span><span class="sb">${pb}</span></span>
           <span class="history-arrow">&#9660;</span>
         </div>
