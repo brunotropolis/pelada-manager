@@ -538,7 +538,7 @@ async function abrirPartida() {
   setLoading('btn-abrir', true);
   try {
     const res = await apiPost(ENDPOINTS.admin, {
-      action: 'abrir',
+      action: 'abrir_partida',
       data: data,
       horario: '21:00',
     });
@@ -557,8 +557,9 @@ async function cancelarPartida() {
   setLoading('btn-cancelar', true);
   try {
     await apiPost(ENDPOINTS.admin, {
-      action: 'cancelar',
+      action: 'mudar_status',
       partida_id: currentMatch.id,
+      status: 'cancelada',
     });
     showToast('Partida Cancelada', 'A partida foi cancelada.', '\u274C');
     currentMatch = null;
@@ -967,7 +968,7 @@ async function salvarTimes() {
   try {
     const { teamA, teamB } = generatedTeams;
     await apiPost(ENDPOINTS.admin, {
-      action: 'salvar_times',
+      action: 'sortear_times',
       partida_id: currentMatch.id,
       time_a: teamA.map(p => p.id),
       time_b: teamB.map(p => p.id),
@@ -994,7 +995,7 @@ async function salvarPlacar() {
   setLoading('btn-placar', true);
   try {
     await apiPost(ENDPOINTS.admin, {
-      action: 'placar',
+      action: 'registrar_placar',
       partida_id: currentMatch.id,
       placar_a: placarA,
       placar_b: placarB,
